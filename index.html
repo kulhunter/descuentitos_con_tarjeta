@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buscador de BIN para Descuentos</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .app-container {
+            background: #ffffff;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+            width: 100%;
+            max-width: 350px;
+            text-align: center;
+        }
+        h2 {
+            margin-top: 0;
+            font-size: 1.4rem;
+            color: #1a1a1a;
+        }
+        p {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 1.5rem;
+        }
+        input {
+            width: 88%;
+            padding: 12px;
+            margin-bottom: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        input:focus {
+            border-color: #007bff;
+        }
+        button.search-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            width: 100%;
+            transition: background 0.2s;
+        }
+        button.search-btn:hover {
+            background: #0056b3;
+        }
+        .result-box {
+            margin-top: 1.5rem;
+            display: none;
+            padding: 1.5rem;
+            background: #eef2f5;
+            border-radius: 8px;
+            border: 1px dashed #ccc;
+        }
+        .bin-display {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #000;
+            letter-spacing: 3px;
+            margin-bottom: 1rem;
+        }
+        button.copy-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+        button.copy-btn:hover {
+            background: #218838;
+        }
+        .error-msg {
+            color: #dc3545;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <h2>Buscador de BIN</h2>
+        <p>Escribe el nombre del banco para obtener los primeros 6 dígitos de la tarjeta.</p>
+        
+        <input type="text" id="bankInput" placeholder="Ej: Banco Santander" autocomplete="off">
+        <button class="search-btn" onclick="buscarBIN()">Buscar BIN</button>
+
+        <div id="errorMsg" class="error-msg">Banco no encontrado. Revisa el nombre.</div>
+
+        <div id="resultBox" class="result-box">
+            <div id="binResult" class="bin-display"></div>
+            <button class="copy-btn" onclick="copiarBIN()" id="copyBtn">Copiar al Portapapeles</button>
+        </div>
+    </div>
+
+    <script>
+        // Aquí extraje algunos BINs de tu XML y los vinculé a bancos ficticios.
+        // Cuando tengas tu lista real de bancos, solo debes reemplazar/agregar líneas aquí.
+        const baseDeDatosBIN = {
+            "santander": "558254",
+            "banco de chile": "586655",
+            "bci": "652567",
+            "estado": "527837",
+            "scotiabank": "635460",
+            "falabella": "517679",
+            "ripley": "446776",
+            "itau": "460411"
+        };
+
+        function buscarBIN() {
+            const input = document.getElementById('bankInput').value.toLowerCase().trim();
+            const resultBox = document.getElementById('resultBox');
+            const errorMsg = document.getElementById('errorMsg');
+            const binResult = document.getElementById('binResult');
+            const copyBtn = document.getElementById('copyBtn');
+
+            // Ocultar resultados previos
+            resultBox.style.display = 'none';
+            errorMsg.style.display = 'none';
+            copyBtn.innerText = "Copiar al Portapapeles"; // Resetear botón
+
+            if (input === '') return;
+
+            // Buscar coincidencias (permite buscar "chile" y encontrar "banco de chile")
+            const bancoEncontrado = Object.keys(baseDeDatosBIN).find(banco => banco.includes(input));
+
+            if (bancoEncontrado) {
+                binResult.innerText = baseDeDatosBIN[bancoEncontrado];
+                resultBox.style.display = 'block';
+            } else {
+                errorMsg.style.display = 'block';
+            }
+        }
+
+        function copiarBIN() {
+            const binText = document.getElementById('binResult').innerText;
+            navigator.clipboard.writeText(binText).then(() => {
+                const copyBtn = document.getElementById('copyBtn');
+                copyBtn.innerText = "¡Copiado!";
+                setTimeout(() => {
+                    copyBtn.innerText = "Copiar al Portapapeles";
+                }, 2000);
+            }).catch(err => {
+                console.error('Error al copiar: ', err);
+                alert("Tu navegador no soporta la función de copiar automáticamente.");
+            });
+        }
+
+        // Permitir buscar apretando "Enter"
+        document.getElementById("bankInput").addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                buscarBIN();
+            }
+        });
+    </script>
+</body>
+</html>
